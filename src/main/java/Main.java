@@ -21,8 +21,9 @@ public class Main {
         System.out.println("Logs from your program will appear here!");
         ServerSocket serverSocket = null;
         Socket clientSocket = null;
-        String OK = "HTTP/1.1 200 OK\r\n\r\n";
-        String NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n";
+        String EOL = "\r\n";
+        String OK = "HTTP/1.1 200 OK" + EOL;
+        String NOT_FOUND = "HTTP/1.1 404 Not Found" + EOL;
 
         try {
             serverSocket = new ServerSocket(4221);
@@ -35,8 +36,22 @@ public class Main {
             if (request[0].equals("GET")) {
                 if (request[1].equals("/")) {
                     clientSocket.getOutputStream().write(OK.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream().write(EOL.getBytes(StandardCharsets.UTF_8));
+                } else if (request[1].startsWith("/echo")) {
+                    String echo = request[1].split("/")[2];
+                    String content_type = "Content-Type: text/plain" + EOL;
+                    String content_length = "Content-Length: " + Integer.toString(echo.length()) + EOL;
+                    clientSocket.getOutputStream().write(OK.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream()
+                            .write(content_type.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream()
+                            .write(content_length.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream().write(EOL.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream().write(echo.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream().write(EOL.getBytes(StandardCharsets.UTF_8));
                 } else {
                     clientSocket.getOutputStream().write(NOT_FOUND.getBytes(StandardCharsets.UTF_8));
+                    clientSocket.getOutputStream().write(EOL.getBytes(StandardCharsets.UTF_8));
                 }
             }
             clientSocket.close();
