@@ -38,7 +38,7 @@ public class Main {
                     clientSocket.getOutputStream().write(OK.getBytes(StandardCharsets.UTF_8));
                     clientSocket.getOutputStream().write(EOL.getBytes(StandardCharsets.UTF_8));
                 } else if (request[1].startsWith("/echo")) {
-                    String echo = request[1].split("/")[2];
+                    String echo = request[1].replace("/echo/", "");
                     String content_type = "Content-Type: text/plain" + EOL;
                     String content_length = "Content-Length: " + Integer.toString(echo.length()) + EOL;
                     clientSocket.getOutputStream().write(OK.getBytes(StandardCharsets.UTF_8));
