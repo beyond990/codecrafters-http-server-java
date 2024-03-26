@@ -35,6 +35,7 @@ public class Response {
     public void sendResponseCodeOnly() {
         try {
             this.out.append(this.responseCode).append(EOL);
+            this.out.append(EOL);
             this.out.flush();
         } catch (IOException e) {
             System.err.println("IOExcetion: " + e.getMessage());
