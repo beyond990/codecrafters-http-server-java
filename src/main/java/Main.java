@@ -34,7 +34,6 @@ public class Main {
                     response.sendResponseCodeOnly();
                 }
             }
-            response.close();
             clientSocket.close();
 
         } catch (IOException e) {

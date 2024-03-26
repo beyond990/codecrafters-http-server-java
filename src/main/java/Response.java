@@ -1,3 +1,4 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -5,15 +6,15 @@ import java.nio.charset.StandardCharsets;
 
 public class Response {
 
-    private OutputStreamWriter outputStreamWriter;
+    private BufferedWriter out;
     private String responseCode;
     private String contentType;
+    private String contentLength;
     private String body;
-
     private String EOL = "\r\n";
 
     Response(OutputStream outputStream) {
-        this.outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        this.out = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
         this.setResponseCode(HttpCodes.OK);
         this.setContentType("text/http");
     }
@@ -28,41 +29,26 @@ public class Response {
 
     public void setBody(String body) {
         this.body = body;
+        this.contentLength = "Content-Length: " + Integer.toString(body.length());
     }
 
     public void sendResponseCodeOnly() {
-        this.write(this.responseCode);
-        this.flush();
+        try {
+            this.out.append(this.responseCode).append(EOL);
+            this.out.flush();
+        } catch (IOException e) {
+            System.err.println("IOExcetion: " + e.getMessage());
+        }
     }
 
     public void sendResponse() {
-        this.write(this.responseCode);
-        this.write(this.contentType);
-        this.write("Content-Length: " + Integer.toString(body.length()));
-        this.write(EOL);
-        this.write(body);
-        this.flush();
-    }
-
-    private void write(String line) {
         try {
-            this.outputStreamWriter.write(line + EOL);
-        } catch (IOException e) {
-            System.err.println("IOException: " + e.getMessage());
-        }
-    }
-
-    private void flush() {
-        try {
-            this.outputStreamWriter.flush();
-        } catch (IOException e) {
-            System.err.println("IOException: " + e.getMessage());
-        }
-    }
-
-    public void close() {
-        try {
-            this.outputStreamWriter.close();
+            this.out.append(this.responseCode).append(EOL);
+            this.out.append(this.contentType).append(EOL);
+            this.out.append(this.contentLength).append(EOL);
+            this.out.append(EOL);
+            this.out.append(body).append(EOL);
+            this.out.flush();
         } catch (IOException e) {
             System.err.println("IOException: " + e.getMessage());
         }

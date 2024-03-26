@@ -11,6 +11,6 @@ enum HttpCodes {
 
     @Override
     public String toString() {
-        return "HTTP/1.1 " + this.response + "\r\n";
+        return "HTTP/1.1 " + this.response;
     }
 }
