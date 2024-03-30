@@ -28,7 +28,7 @@ public class Request {
             List<String> headers = new ArrayList<String>();
 
             boolean inBody = false;
-            while (true) {
+            while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
                 if (line.equals("")) {
                     inBody = true;
