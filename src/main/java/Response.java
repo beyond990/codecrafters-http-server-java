@@ -48,7 +48,7 @@ public class Response {
             this.out.append(this.contentType).append(EOL);
             this.out.append(this.contentLength).append(EOL);
             this.out.append(EOL);
-            this.out.append(body).append(EOL);
+            this.out.append(body);
             this.out.flush();
         } catch (IOException e) {
             System.err.println("IOException: " + e.getMessage());

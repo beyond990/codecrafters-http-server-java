@@ -29,6 +29,10 @@ public class Main {
                     response.setContentType("text/plain");
                     response.setBody(request.getUrl().replace("/echo/", ""));
                     response.sendResponse();
+                } else if (request.getUrl().equals("/user-agent")) {
+                    response.setContentType("text/plain");
+                    response.setBody(request.getUserAgent());
+                    response.sendResponse();
                 } else {
                     response.setResponseCode(HttpCodes.NOT_FOUND);
                     response.sendResponseCodeOnly();
