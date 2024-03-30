@@ -1,45 +1,28 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) {
-        Main main = new Main();
-        main.run();
-    }
-
-    private void run() {
-
         System.out.println("Logs from your program will appear here!");
         ServerSocket serverSocket = null;
-        Socket clientSocket = null;
+        List<ClientHandler> clients = new ArrayList<ClientHandler>();
+        ExecutorService pool = Executors.newCachedThreadPool();
 
         try {
             serverSocket = new ServerSocket(4221);
             serverSocket.setReuseAddress(true);
-            clientSocket = serverSocket.accept(); // Wait for connection from client.
-            System.out.println("accepted new connection");
-            Request request = new Request(clientSocket.getInputStream());
-            Response response = new Response(clientSocket.getOutputStream());
-
-            if (request.getMethod().equals("GET")) {
-                if (request.getUrl().equals("/")) {
-                    response.sendResponseCodeOnly();
-                } else if (request.getUrl().startsWith("/echo")) {
-                    response.setContentType("text/plain");
-                    response.setBody(request.getUrl().replace("/echo/", ""));
-                    response.sendResponse();
-                } else if (request.getUrl().equals("/user-agent")) {
-                    response.setContentType("text/plain");
-                    response.setBody(request.getUserAgent());
-                    response.sendResponse();
-                } else {
-                    response.setResponseCode(HttpCodes.NOT_FOUND);
-                    response.sendResponseCodeOnly();
-                }
+            while (!serverSocket.isClosed()) {
+                Socket client = serverSocket.accept(); // Wait for connection from client.
+                System.out.println("accepted new connection");
+                ClientHandler clientThread = new ClientHandler(client);
+                clients.add(clientThread);
+                pool.execute(clientThread);
             }
-            clientSocket.close();
-
         } catch (IOException e) {
             System.err.println("IOException: " + e.getMessage());
         }
