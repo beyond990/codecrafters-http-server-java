@@ -23,13 +23,22 @@ public class Request {
 
     Request(InputStream inputStream) {
         try {
-            BufferedReader bufferedReader = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new InputStreamReader(inputStream));
             List<String> headers = new ArrayList<String>();
 
+            String startline = in.readLine();
+            if (startline == null)
+                return;
+
+            String[] request = startline.split(" ");
+            this.method = request[0];
+            this.url = request[1];
+            this.httpVersion = request[2];
+
             boolean inBody = false;
-            while (bufferedReader.ready()) {
-                String line = bufferedReader.readLine();
+            while (in.ready()) {
+                String line = in.readLine();
                 if (line.equals("")) {
                     inBody = true;
                 } else if (inBody) {
@@ -38,11 +47,6 @@ public class Request {
                     headers.add(line);
                 }
             }
-            String[] request = headers.get(0).split(" ");
-            this.method = request[0];
-            this.url = request[1];
-            this.httpVersion = request[2];
-            headers.remove(0);
 
             for (String header : headers) {
                 String[] temp = header.split(":", 2);

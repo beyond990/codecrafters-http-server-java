@@ -8,19 +8,17 @@ public class ClientHandler implements Runnable {
     private Response response;
 
     public ClientHandler(Socket client) {
-        try {
-            this.client = client;
-            this.request = new Request(client.getInputStream());
-            this.response = new Response(client.getOutputStream());
-        } catch (IOException e) {
-            System.err.println("IOException: " + e.getMessage());
-        }
+        Thread thread = Thread.currentThread();
+        System.err.println("clientHandler-thread: " + thread.threadId());
+        this.client = client;
     }
 
     @Override
     public void run() {
         try {
-            if (request.getMethod().equals("GET")) {
+            request = new Request(client.getInputStream());
+            response = new Response(client.getOutputStream());
+            if (request.getMethod() != null && request.getMethod().equals("GET")) {
                 if (request.getUrl().equals("/")) {
                     response.sendResponseCodeOnly();
                 } else if (request.getUrl().startsWith("/echo")) {
