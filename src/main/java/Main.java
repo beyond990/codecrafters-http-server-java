@@ -17,7 +17,7 @@ public class Main {
         Option directoryOption = Option.builder("d").longOpt("directory")
                 .argName("directory")
                 .hasArg()
-                .required(true)
+                // .required(true)
                 .desc("Set directory for file storage").build();
         options.addOption(directoryOption);
 
@@ -41,10 +41,10 @@ public class Main {
         List<ClientHandler> clients = new ArrayList<>();
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        if (directory == null) {
-            System.err.println("Directory option not set!");
-            System.exit(1);
-        }
+        // if (directory == null) {
+        // System.err.println("Directory option not set!");
+        // System.exit(1);
+        // }
         try {
             ServerSocket listner = new ServerSocket(4221);
             listner.setReuseAddress(true);
