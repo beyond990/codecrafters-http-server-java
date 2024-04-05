@@ -40,7 +40,7 @@ public class Response {
     public void sendFile(File file) {
         try {
             this.out.append(this.responseCode).append(EOL);
-            this.out.append("Content-Type: application/octetstream").append(EOL);
+            this.out.append("Content-Type: application/octet-stream").append(EOL);
             this.out.append("Content-Length: ").append(Long.toString(file.length())).append(EOL);
             this.out.append(EOL);
             this.out.flush();
