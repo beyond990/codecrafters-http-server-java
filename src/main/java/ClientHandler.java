@@ -20,10 +20,12 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Running Handler");
         try {
             request = new Request(client.getInputStream());
             response = new Response(client.getOutputStream());
             if (request.getMethod() != null && request.getMethod().equals("GET")) {
+                System.out.println("In GET");
                 if (request.getUrl().equals("/")) {
                     response.sendResponseCodeOnly();
                 } else if (request.getUrl().startsWith("/echo")) {
@@ -35,7 +37,6 @@ public class ClientHandler implements Runnable {
                     response.setBody(request.getUserAgent());
                     response.sendResponse();
                 } else if (request.getUrl().startsWith("/files/")) {
-                    // get args --directory
                     Path filePath = Paths.get(this.directory.toString(), request.getUrl().replace("/files/", ""));
                     File file = new File(filePath.toString());
                     if (file.exists()) {
@@ -48,10 +49,29 @@ public class ClientHandler implements Runnable {
                     response.setResponseCode(HttpCodes.NOT_FOUND);
                     response.sendResponseCodeOnly();
                 }
+            } else if (request.getMethod() != null && request.getMethod().equals("POST")) {
+                System.out.println("In POST");
+                if (request.getUrl().equals("/files")) {
+                    Path filePath = Paths.get(this.directory.toString(), request.getUrl().replace("/files/", ""));
+                    try {
+                        request.saveFile(filePath);
+                        response.setResponseCode(HttpCodes.CREATED);
+                    } catch (IOException e) {
+                        System.err.println("Unable to write file: " + filePath.toString());
+                        response.setResponseCode(HttpCodes.BAD_REQUEST);
+                    }
+                    response.sendResponseCodeOnly();
+                } else {
+                    response.setResponseCode(HttpCodes.BAD_REQUEST);
+                    response.sendResponseCodeOnly();
+                }
+            } else {
+                System.err.println("Bad Method");
             }
             this.client.close();
         } catch (IOException e) {
             System.err.println("IOExecption: " + e.getMessage());
         }
+        System.out.println("Leaving Handler");
     }
 }
