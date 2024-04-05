@@ -39,7 +39,7 @@ public class Request {
                 if (header.isEmpty())
                     break;
                 String parts[] = header.split(": ");
-                headers.put(parts[0], parts[1]);
+                headers.put(parts[0].toLowerCase(), parts[1]);
             }
             StringBuilder content = new StringBuilder();
             while (in.ready()) {
