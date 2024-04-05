@@ -34,23 +34,18 @@ public class Request {
 
             if (headers == null)
                 headers = new HashMap<>();
-            boolean inBody = false;
-            while (in.ready()) {
-                String line = in.readLine();
-                System.out.println(line);
-                if (line.equals("")) {
-                    if (inBody) {
-                        break;
-                    } else {
-                        inBody = true;
-                    }
-                } else if (inBody) {
-                    this.body += line + "\n";
-                } else {
-                    String[] lineParts = line.split(": ");
-                    this.headers.put(lineParts[0].toLowerCase(), lineParts[1].trim());
-                }
+            String header;
+            while ((header = in.readLine()) != null) {
+                if (header.isEmpty())
+                    break;
+                String parts[] = header.split(": ");
+                headers.put(parts[0], parts[1]);
             }
+            StringBuilder content = new StringBuilder();
+            while (in.ready()) {
+                content.append((char) in.read());
+            }
+            this.body = content.toString();
 
         } catch (IOException e) {
             System.err.println("IOException: " + e.getMessage());
@@ -118,9 +113,14 @@ public class Request {
     }
 
     public void saveFile(Path filePath) throws IOException {
+        System.out.println("Save file" + filePath.toAbsolutePath().toString());
         File file = Paths.get(filePath.toAbsolutePath().toString()).toFile();
-        System.out.println("Writing file: " + file.toString());
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file.toString()));
+        if (!file.exists()) {
+            if (file.createNewFile()) {
+                System.out.println("New file created");
+            }
+        }
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(this.body);
         writer.close();
     }

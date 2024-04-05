@@ -51,7 +51,7 @@ public class ClientHandler implements Runnable {
                 }
             } else if (request.getMethod() != null && request.getMethod().equals("POST")) {
                 System.out.println("In POST");
-                if (request.getUrl().equals("/files")) {
+                if (request.getUrl().startsWith("/files")) {
                     Path filePath = Paths.get(this.directory.toString(), request.getUrl().replace("/files/", ""));
                     try {
                         request.saveFile(filePath);
