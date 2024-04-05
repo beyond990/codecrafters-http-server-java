@@ -2,30 +2,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class Request {
 
     private String method;
     private String url;
     private String httpVersion;
-    private String host;
-    private String userAgent;
-    private String accept;
-    private String acceptLanguage;
-    private String acceptEncoding;
-    private String connection;
-    private boolean upgradeInsecureRequests;
-    private String contentType;
-    private Integer contentLength;
+    private HashMap<String, String> headers;
     private String body;
 
     Request(InputStream inputStream) {
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(inputStream));
-            List<String> headers = new ArrayList<String>();
 
             String startline = in.readLine();
             if (startline == null)
@@ -36,6 +26,8 @@ public class Request {
             this.url = request[1];
             this.httpVersion = request[2];
 
+            if (headers == null)
+                headers = new HashMap<>();
             boolean inBody = false;
             while (in.ready()) {
                 String line = in.readLine();
@@ -44,45 +36,8 @@ public class Request {
                 } else if (inBody) {
                     this.body += line + "\n";
                 } else {
-                    headers.add(line);
-                }
-            }
-
-            for (String header : headers) {
-                String[] temp = header.split(":", 2);
-                String key = temp[0];
-                String value = temp[1].trim();
-                switch (key.toLowerCase()) {
-                    case "host":
-                        this.host = value;
-                        break;
-                    case "user-agent":
-                        this.userAgent = value;
-                        break;
-                    case "accept":
-                        this.accept = value;
-                        break;
-                    case "accept-language":
-                        this.acceptLanguage = value;
-                        break;
-                    case "accept-encoding":
-                        this.acceptEncoding = value;
-                        break;
-                    case "connection":
-                        this.connection = value;
-                        break;
-                    case "upgrade-insecure-requests":
-                        this.upgradeInsecureRequests = Boolean.valueOf(value);
-                        break;
-                    case "content-type":
-                        this.contentType = value;
-                        break;
-                    case "content-length":
-                        this.contentLength = Integer.valueOf(value);
-                        break;
-
-                    default:
-                        break;
+                    String[] lineParts = line.split(": ");
+                    this.headers.put(lineParts[0].toLowerCase(), lineParts[1].trim());
                 }
             }
 
@@ -105,39 +60,46 @@ public class Request {
     }
 
     public String getHost() {
-        return this.host;
+        return this.headers.get("host");
     }
 
     public String getUserAgent() {
-        return this.userAgent;
+        return this.headers.get("user-agent");
     }
 
     public String getAccept() {
-        return this.accept;
+        return this.headers.get("accept");
     }
 
     public String getAcceptLanguage() {
-        return this.acceptLanguage;
+        return this.headers.get("accept-language");
     }
 
     public String getAcceptEncoding() {
-        return this.acceptEncoding;
+        return this.headers.get("accept-encoding");
     }
 
     public String getConnection() {
-        return this.connection;
+        return this.headers.get("connectioin");
     }
 
     public Boolean getUpgradeInsecureRequests() {
-        return this.upgradeInsecureRequests;
+        return Boolean.valueOf(this.headers.get("upgrade-insecure-requests"));
     }
 
     public String getContentType() {
-        return this.contentType;
+        return this.headers.get("content-type");
     }
 
     public Integer getContentLength() {
-        return this.contentLength;
+        return Integer.valueOf(this.headers.get("content-length"));
+    }
+
+    public String getHeader(String header) {
+        if (this.headers.containsKey(header)) {
+            return this.headers.get(header);
+        }
+        return "";
     }
 
     public String getBody() {

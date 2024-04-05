@@ -1,13 +1,18 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ClientHandler implements Runnable {
 
     private Socket client;
+    private Path directory;
     private Request request;
     private Response response;
 
-    public ClientHandler(Socket client) {
+    public ClientHandler(Socket client, Path directory) {
+        this.directory = directory;
         Thread thread = Thread.currentThread();
         System.err.println("clientHandler-thread: " + thread.threadId());
         this.client = client;
@@ -29,6 +34,16 @@ public class ClientHandler implements Runnable {
                     response.setContentType("text/plain");
                     response.setBody(request.getUserAgent());
                     response.sendResponse();
+                } else if (request.getUrl().startsWith("/files/")) {
+                    // get args --directory
+                    Path filePath = Paths.get(this.directory.toString(), request.getUrl().replace("/files/", ""));
+                    File file = new File(filePath.toString());
+                    if (file.exists()) {
+                        response.sendFile(file);
+                    } else {
+                        response.setResponseCode(HttpCodes.NOT_FOUND);
+                        response.sendResponseCodeOnly();
+                    }
                 } else {
                     response.setResponseCode(HttpCodes.NOT_FOUND);
                     response.sendResponseCodeOnly();
